@@ -49,6 +49,30 @@ public:
     return Time(std::move(rcl_now));
   }
 
+  template<rcl_time_source_type_t ClockT = RCL_SYSTEM_TIME>
+  static Time
+  fromSec(double t)
+  {
+    uint32_t nsec = (uint32_t)(t * 1e9);
+
+    rcl_time_point_value_t rcl_time = nsec;
+    rcl_ret_t ret = RCL_RET_ERROR;
+    if (ClockT == RCL_ROS_TIME) {
+      throw std::runtime_error("RCL_ROS_TIME is currently not implemented.");
+      ret = false;
+    } else if (ClockT == RCL_SYSTEM_TIME) {
+      ret = rcl_system_time_now(&rcl_time);
+    } else if (ClockT == RCL_STEADY_TIME) {
+      ret = rcl_steady_time_now(&rcl_time);
+    }
+    if (ret != RCL_RET_OK) {
+      rclcpp::exceptions::throw_from_rcl_error(
+        ret, "Could not get current time: ");
+    }
+
+    return Time(std::move(rcl_time));
+  }
+
   operator builtin_interfaces::msg::Time() const
   {
     builtin_interfaces::msg::Time msg_time;

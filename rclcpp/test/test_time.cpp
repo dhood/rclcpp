@@ -30,7 +30,27 @@ protected:
   }
 };
 
-TEST(TestTime, rate_basics) {
+TEST(TestTime, test_from_sec) {
+  using builtin_interfaces::msg::Time;
+  // TODO(Karsten1987): Fix this test once ROS_TIME is implemented
+  doublt t = 1.2;
+  EXPECT_ANY_THROW(rclcpp::Time::fromSec<RCL_ROS_TIME>(t));
+
+  Time system_time = rclcpp::Time::fromSec<RCL_SYSTEM_TIME>(t);
+  EXPECT_NE(1, system_now.sec);
+  EXPECT_NE(0u, system_now.nanosec);
+
+  Time steady_now = rclcpp::Time::fromSec<RCL_STEADY_TIME>(t);
+  EXPECT_NE(0, steady_now.sec);
+  EXPECT_NE(0u, steady_now.nanosec);
+
+  // default
+  Time default_now = rclcpp::Time::fromSec();
+  EXPECT_NE(0, default_now.sec);
+  EXPECT_NE(0u, default_now.nanosec);
+}
+
+TEST(TestTime, test_now) {
   using builtin_interfaces::msg::Time;
   // TODO(Karsten1987): Fix this test once ROS_TIME is implemented
   EXPECT_ANY_THROW(rclcpp::Time::now<RCL_ROS_TIME>());
